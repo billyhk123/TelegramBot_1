@@ -1,22 +1,24 @@
 from telegram import Update
 from telegram.ext import (Updater, CommandHandler, MessageHandler, Filters,
 CallbackContext)
-import configparser
 import logging
 import redis
 from ChatGPT_HKBU import HKBU_ChatGPT
-
+import configparser #I keep using for config for non-sensitive information for easier udpate.
+import os
 
 global redis1
 def main():
 # Load your token and create an Updater for your Bot
     config = configparser.ConfigParser()
     config.read('config.ini')
-    updater = Updater(token=(config['TELEGRAM']['ACCESS_TOKEN']), use_context=True)
+    #updater = Updater(token=(config['TELEGRAM']['ACCESS_TOKEN']), use_context=True)
+    updater = Updater(token=(os.environ['TELEGRAM_ACCESS_TOKEN']), use_context=True)
     dispatcher = updater.dispatcher
     global redis1
     redis1 = redis.Redis(host=(config['REDIS']['HOST']),
-    password=(config['REDIS']['PASSWORD']),
+    #password=(config['REDIS']['
+    password=(os.environ['REDIS_PASSWORD']),
     port=(config['REDIS']['REDISPORT']))
     
 # You can set this logging module, so you will know when and why things do not work as expected Meanwhile, update your config.ini as:
@@ -29,7 +31,7 @@ def main():
     # dispatcher for chatgpt
 
     global chatgpt
-    chatgpt = HKBU_ChatGPT(config)
+    chatgpt = HKBU_ChatGPT(os.environ['CHATGPT_ACCESS_TOKEN'], config)
     chatgpt_handler = MessageHandler(Filters.text & (~Filters.command), equiped_chatgpt)
     dispatcher.add_handler(chatgpt_handler)
 
